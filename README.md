@@ -53,7 +53,9 @@ cp .env.example .env   # fill in your LLM_API_KEY
 The only runtime dependency is the `openai` client. Any OpenAI-compatible
 endpoint works; the defaults target Google's Gemini free tier (create a key at
 https://aistudio.google.com/app/apikey). A Groq configuration is included in
-`.env.example` as an alternative.
+`.env.example` as an alternative. Note: free-tier quotas are per model per day
+and some current models allow only about 20 requests/day; if you hit a 429,
+switch `LLM_MODEL` to another flash model or wait for the daily reset.
 
 ## Running
 
@@ -71,7 +73,8 @@ python tests/test_tools.py            # deterministic checks, no LLM needed
 python scripts/generate_examples.py   # regenerates examples/ (needs an API key)
 ```
 
-The `examples/` folder holds 5 conversations with the agent covering catalog
+The `examples/` folder holds 5 real conversations with the agent (generated
+with `gemini-3.6-flash`) covering catalog
 search, price + return policy, order tracking, out-of-scope redirection and
 expired promotions. Each one shows the tool calls the agent made.
 `tests/test_tools.py` validates the tool layer deterministically; the example
