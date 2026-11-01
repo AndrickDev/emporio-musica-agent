@@ -110,12 +110,14 @@ to a paid model for production quality.
 **Interface: CLI.** The case focuses on the agent working correctly, so the
 interface is a terminal loop with optional named sessions persisted as JSON.
 
-**Language: documentation in English, agent in Portuguese.** The process
-asks for responses in English, so the README, code and commit history are in
-English. The agent itself converses in Brazilian Portuguese because it serves
-the store's customers, and the case's own example interactions are in
-Portuguese. If this reading is wrong, the agent's language is a one-line
-change in the system prompt.
+**Language: submission materials in English, agent in Portuguese.** The
+process asks for responses in English, so the README, code and commit history
+are in English. The agent itself converses in Brazilian Portuguese because it
+serves the store's customers, and the case's own example interactions are in
+Portuguese; each example conversation in `examples/` carries an English
+translation below the original so the submission stays reviewable in English.
+If the intention was that the agent answer end users in English, that is a
+one-line change in the system prompt.
 
 **Guardrails:** the system prompt encodes the manual's hard rules (never state
 price or stock without querying; instruments only, no accessories; never
