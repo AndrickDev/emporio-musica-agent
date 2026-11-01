@@ -71,9 +71,12 @@ python tests/test_tools.py            # deterministic checks, no LLM needed
 python scripts/generate_examples.py   # regenerates examples/ (needs an API key)
 ```
 
-The `examples/` folder holds 5 real conversations covering catalog search,
-price + return policy, order tracking, out-of-scope redirection and expired
-promotions. Each one shows the tool calls the agent made.
+The `examples/` folder holds 5 conversations with the agent covering catalog
+search, price + return policy, order tracking, out-of-scope redirection and
+expired promotions. Each one shows the tool calls the agent made.
+`tests/test_tools.py` validates the tool layer deterministically; the example
+conversations are the end-to-end validation of the agent with the LLM in the
+loop.
 
 ## Technical decisions
 
@@ -125,12 +128,16 @@ deterministic output checks.
 
 ## Use of AI assistants
 
-This project was developed with AI assistance (a coding agent) for
-scaffolding, implementation of the data and tool layers, and drafting of this
-README. Architecture choices, the tool contract, guardrails and validation
-against the case data were directed and reviewed by me. The deterministic
-test suite (`tests/test_tools.py`) checks the tool layer without any LLM
-involvement.
+This project was developed with AI assistance: an AI coding agent scaffolded
+the project, implemented the data access, tool layer, agent loop and CLI,
+generated the example conversations and drafted this README, at my request.
+My own review, adjustments and final validation are described below.
+
+[DRAFT NOTE - remove before submission: Andrick, this section must describe
+YOUR actual workflow. After you review the code, edit these lines to state
+what you reviewed, changed and validated yourself. The case treats honest
+disclosure of AI-assisted workflow as a potential positive, so accuracy here
+matters more than the amount of work claimed.]
 
 ## Project structure
 
