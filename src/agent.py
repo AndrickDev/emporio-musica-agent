@@ -6,9 +6,10 @@ through keyword retrieval over the policy manual. The system prompt encodes
 the store persona and the non-negotiable service rules from the manual.
 """
 import json
+import time
 from pathlib import Path
 
-from openai import OpenAI
+from openai import APIError, OpenAI
 
 from . import config
 from .tools import TOOL_SCHEMAS, call_tool
@@ -38,18 +39,40 @@ class Agent:
         self.model = model or config.MODEL
         self.messages: list = [{"role": "system", "content": SYSTEM_PROMPT}]
 
+    def _create_completion(self):
+        """Call the model with simple backoff for transient errors.
+
+        Free-tier endpoints throttle under load (429) or return 503 when
+        capacity is short; both are retryable and never produce charges.
+        """
+        last_error = None
+        for attempt in range(10):
+            try:
+                kwargs = {}
+                if config.REASONING_EFFORT:
+                    kwargs["reasoning_effort"] = config.REASONING_EFFORT
+                return self.client.chat.completions.create(
+                    model=self.model,
+                    messages=self.messages,
+                    tools=TOOL_SCHEMAS,
+                    tool_choice="auto",
+                    temperature=config.TEMPERATURE,
+                    **kwargs,
+                )
+            except APIError as exc:
+                last_error = exc
+                status = getattr(exc, "status_code", None)
+                if status not in (429, 500, 502, 503, 504):
+                    raise
+                time.sleep(min(2 ** attempt * 5, 90))
+        raise last_error
+
     def chat(self, user_input: str) -> dict:
         """Send one user message; return the reply and the tool-call trace."""
         self.messages.append({"role": "user", "content": user_input})
         trace = []
         for _ in range(config.MAX_TOOL_ROUNDS):
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=self.messages,
-                tools=TOOL_SCHEMAS,
-                tool_choice="auto",
-                temperature=config.TEMPERATURE,
-            )
+            response = self._create_completion()
             message = response.choices[0].message
             self.messages.append(message.model_dump(exclude_none=True))
             if not message.tool_calls:

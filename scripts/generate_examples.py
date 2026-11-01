@@ -54,9 +54,12 @@ SCENARIOS = [
 
 
 def run() -> None:
+    only = {int(a) for a in sys.argv[1:]} if len(sys.argv) > 1 else None
     out_dir = Path(__file__).resolve().parent.parent / "examples"
     out_dir.mkdir(exist_ok=True)
-    for filename, title, messages in SCENARIOS:
+    for idx, (filename, title, messages) in enumerate(SCENARIOS):
+        if only is not None and idx not in only:
+            continue
         agent = Agent()
         lines = [f"# {title}", ""]
         for user_message in messages:
