@@ -110,6 +110,13 @@ to a paid model for production quality.
 **Interface: CLI.** The case focuses on the agent working correctly, so the
 interface is a terminal loop with optional named sessions persisted as JSON.
 
+**Language: documentation in English, agent in Portuguese.** The process
+asks for responses in English, so the README, code and commit history are in
+English. The agent itself converses in Brazilian Portuguese because it serves
+the store's customers, and the case's own example interactions are in
+Portuguese. If this reading is wrong, the agent's language is a one-line
+change in the system prompt.
+
 **Guardrails:** the system prompt encodes the manual's hard rules (never state
 price or stock without querying; instruments only, no accessories; never
 promise an expired discount; order lookups require an identifier; the agent
@@ -121,8 +128,11 @@ deterministic output checks.
 
 - Keyword retrieval can miss paraphrases far from the manual's wording;
   embeddings would close that gap.
-- Order lookup trusts the identifier given; a real deployment would
-  authenticate the customer before exposing order details.
+- Order lookup treats possession of the identifier (order number, tracking
+  code or registered e-mail) as sufficient proof for this prototype, which
+  matches the case scope. A real deployment would authenticate the customer
+  first (e.g. confirm a second data point) before exposing order details,
+  since a leaked tracking code currently reveals name, items and status.
 - No WhatsApp integration; the CLI stands in for the channel.
 - Conversation history grows unbounded within a session; a summarization
   step would bound token usage.
