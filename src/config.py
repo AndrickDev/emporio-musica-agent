@@ -10,7 +10,7 @@ BASE_URL = os.getenv(
     "https://generativelanguage.googleapis.com/v1beta/openai/",
 )
 API_KEY = os.getenv("LLM_API_KEY") or os.getenv("OPENAI_API_KEY")
-MODEL = os.getenv("LLM_MODEL", "gemini-2.5-flash")
+MODEL = os.getenv("LLM_MODEL", "gemini-3.8-flash")
 TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.4"))
 MAX_TOOL_ROUNDS = int(os.getenv("AGENT_MAX_TOOL_ROUNDS", "8"))
 SESSIONS_DIR = os.getenv("AGENT_SESSIONS_DIR", ".sessions")
