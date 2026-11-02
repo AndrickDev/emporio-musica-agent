@@ -19,16 +19,16 @@ shipping, payment, warranty and opening hours.
 customer message
       │
       ▼
- Agent loop (src/agent.py) ──── OpenAI-compatible chat completions (Gemini free tier by default)
-      ▲                              │ function calling
-      │ tool results (JSON)          ▼
-      └──────────────────── tools (src/tools.py)
-                              ├─ catalog / promotions ── in-memory SQLite built from data/*.csv
-                              ├─ payment / shipping ──── manual §3, §5, §6.2 rules in code (src/pricing.py)
-                              ├─ order status ────────── requires order id or tracking code + e-mail or phone
-                              ├─ store policies ──────── keyword search over the policy manual
-                              ├─ store info ──────────── address, contacts, opening hours
-                              └─ support ticket ──────── handoff to the human team (local JSONL file)
+ agent loop (src/agent.py) ──► LLM, OpenAI-compatible API (Gemini free tier by default)
+      ▲                            │ function calling
+      │ tool results (JSON)        ▼
+      └──────────────── tools (src/tools.py)
+                          ├─ catalog / promotions ─► in-memory SQLite from data/*.csv
+                          ├─ payment / shipping ──► manual §3, §5, §6.2 rules (src/pricing.py)
+                          ├─ order status ────────► order id or tracking + e-mail or phone
+                          ├─ store policies ──────► keyword search over the manual
+                          ├─ store info ──────────► address, contacts, opening hours
+                          └─ support ticket ──────► handoff to the team (local JSONL)
 ```
 
 The system prompt sets persona and rules but **contains no store facts** (prices, phones, hours).

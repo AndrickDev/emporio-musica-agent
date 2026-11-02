@@ -19,16 +19,16 @@ garantia e horário.
 mensagem do cliente
       │
       ▼
- Loop do agente (src/agent.py) ──── chat completions compatível com OpenAI (Gemini grátis por padrão)
-      ▲                                  │ function calling
-      │ resultados (JSON)                ▼
-      └──────────────────────── ferramentas (src/tools.py)
-                                  ├─ catálogo / promoções ── SQLite em memória criado de data/*.csv
-                                  ├─ pagamento / frete ───── regras §3, §5, §6.2 em código (src/pricing.py)
-                                  ├─ status de pedido ────── exige nº do pedido ou rastreio + e-mail ou telefone
-                                  ├─ políticas ───────────── busca por palavras-chave no manual
-                                  ├─ dados da loja ───────── endereço, contatos, horário
-                                  └─ registro de atendimento ─ repasse para a equipe (arquivo JSONL local)
+ loop do agente (src/agent.py) ──► LLM, API compatível com OpenAI (Gemini grátis por padrão)
+      ▲                                │ function calling
+      │ resultados (JSON)              ▼
+      └──────────────────── ferramentas (src/tools.py)
+                              ├─ catálogo / promoções ─► SQLite em memória de data/*.csv
+                              ├─ pagamento / frete ───► regras §3, §5, §6.2 (src/pricing.py)
+                              ├─ status de pedido ────► nº ou rastreio + e-mail ou telefone
+                              ├─ políticas ───────────► busca por palavras no manual
+                              ├─ dados da loja ───────► endereço, contatos, horário
+                              └─ registro de atendimento ► repasse à equipe (JSONL local)
 ```
 
 O prompt de sistema define persona e regras, mas **não contém fatos da loja** (preços, telefones,
