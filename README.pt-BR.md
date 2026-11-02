@@ -24,7 +24,7 @@ mensagem do cliente
       │ resultados (JSON)                ▼
       └──────────────────────── ferramentas (src/tools.py)
                                   ├─ catálogo / promoções ── SQLite em memória criado de data/*.csv
-                                  ├─ formas de pagamento ─── regras §3 / §6.2 em código (src/pricing.py)
+                                  ├─ pagamento / frete ───── regras §3, §5, §6.2 em código (src/pricing.py)
                                   ├─ status de pedido ────── exige nº do pedido ou rastreio + e-mail ou telefone
                                   ├─ políticas ───────────── busca por palavras-chave no manual
                                   ├─ dados da loja ───────── endereço, contatos, horário
@@ -41,6 +41,7 @@ são inseridas a cada mensagem, para o agente saber se a loja está aberta e cal
 | `get_product_details` | "Quanto custa o Takamine GD20?" — aceita variações do modelo, pergunta quando é ambíguo, sugere alternativas quando indisponível |
 | `list_active_promotions` | "Tem promoção?" — só existem para o agente as promoções com `is_active = 1` |
 | `get_payment_options` | "Dá pra parcelar? E no PIX?" — desconto do PIX, faixas de parcelamento, pagamento combinado |
+| `estimate_shipping` | "Qual o frete para Campo Grande?" — grátis acima de R$ 500 na cidade; outras cidades recebem prazos das transportadoras, nunca um preço inventado |
 | `get_order_status` | "Cadê meu pedido?" — verificação de identidade, sem dados pessoais no resultado |
 | `get_store_policy` | devolução, garantia, frete, regras de pagamento |
 | `get_store_info` | endereço, telefone, WhatsApp, e-mail, horário |
@@ -76,17 +77,21 @@ No chat: `/sair` encerra, `/limpar` reinicia a conversa.
 ## Testes e conversas de exemplo
 
 ```bash
-python tests/test_tools.py      # 30 verificações da camada de ferramentas (sem LLM, sem rede)
+python tests/test_tools.py      # 33 verificações da camada de ferramentas (sem LLM, sem rede)
 python tests/test_agent.py      # 7 verificações do loop do agente com cliente OpenAI simulado
-python -m pytest tests/         # os mesmos 37 testes, se tiver pytest
+python -m pytest tests/         # os mesmos 40 testes, se tiver pytest
 python scripts/generate_examples.py --translate   # roda 5 cenários com o modelo real
+python scripts/evaluate_agent.py --out examples/evaluation.md   # avaliação por regras com o modelo real
 ```
 
 Os testes cobrem busca (acentos, hífen, preço promocional, corte da lista, ambiguidade, disponibilidade),
-promoções, regras de pagamento, privacidade de pedidos (verificação, sem dados pessoais, mesma mensagem
+promoções, regras de pagamento e frete, 10 perguntas reais de cliente contra o manual, privacidade de pedidos (verificação, sem dados pessoais, mesma mensagem
 de falha, bloqueio, impossibilidade de varrer pedidos), busca nas políticas e o loop do agente (execução
 de ferramentas, limite de rodadas, erro do provedor, data no prompt, sessões). Eles **não** medem a
-qualidade das respostas de um modelo real; isso aparece nas conversas de exemplo.
+qualidade das respostas de um modelo real. Isso fica com as conversas de exemplo e com
+`scripts/evaluate_agent.py`, que roda 11 perguntas no modelo real e confere, com regras simples, se a
+ferramenta esperada foi chamada, se a resposta traz o que deve (ex.: o preço certo) e se não vaza o que
+não pode (dado pessoal, desconto inventado, assunto fora de escopo).
 
 `examples/` guarda as conversas geradas por `scripts/generate_examples.py`. Cada arquivo informa o
 modelo, a hora da geração e a data da loja usada (fixada em 23/03/2026, o dia seguinte ao último pedido
@@ -115,8 +120,9 @@ porque o `LOWER()` do SQLite só trata ASCII.
 
 **Políticas: busca por palavras e radicais, sem banco vetorial.** O manual tem 8 páginas, divididas em
 trechos do tamanho de uma seção. Um pontuador sem acento e com casamento por prefixo
-(devolver/devolução, arrepender/arrependimento) trouxe a seção certa nas perguntas testadas, sem custo e
-sem dependência. Se a base de documentos crescer, esse módulo pode ser trocado por embeddings ou busca
+(devolver/devolução, arrepender/arrependimento), mais uma pequena lista de sinônimos para palavras de
+cliente que não têm o mesmo radical do manual ("horas" → horário, "quebrado" → avaria/defeito), coloca a
+seção certa entre as 3 primeiras nas 10 perguntas de cliente dos testes, sem custo e sem dependência. Se a base de documentos crescer, esse módulo pode ser trocado por embeddings ou busca
 híbrida sem mexer no resto do agente.
 
 **Modelo e provedor: configurável, com o Gemini gratuito como padrão.** O agente usa o protocolo de chat
@@ -190,6 +196,10 @@ Este projeto foi feito com dois assistentes de programação com IA, a meu pedid
   de nome ambíguo, as ferramentas de pagamento e de registro de atendimento, a data atual no prompt, as
   checagens de qualidade dos dados, os testes ampliados (37, executados naquela sessão), os roteiros de
   exemplo corrigidos e este README bilíngue. O Claude não rodou o agente com um modelo real.
+- O Claude também implementou, a meu pedido, mais três mudanças, commitadas no meu nome com a linha
+  `Co-Authored-By: Claude`: a ferramenta de frete (§5), o script de avaliação por regras e perguntas
+  reais de cliente como testes da busca nas políticas (que revelaram duas falhas, corrigidas com mais
+  stopwords e uma lista de sinônimos).
 
 *TODO(autor): descreva a sua parte com as suas palavras — o que você leu e entendeu, o que rodou (testes,
 CLI, geração de exemplos, com qual modelo), o que decidiu, o que mudou você mesmo e em quais commits.*
@@ -200,12 +210,13 @@ CLI, geração de exemplos, com qual modelo), o que decidiu, o que mudou você m
 data/                    dataset do case (CSVs, clientes anonimizados) + manual de políticas (PDF e texto)
 src/config.py            provedor, modelo e data da loja via variáveis de ambiente
 src/database.py          CSV -> SQLite em memória, visão catalog, funções SQL sem acento
-src/pricing.py           regras de pagamento do manual
+src/pricing.py           regras de pagamento e frete do manual
 src/policies.py          divisão e busca no manual de políticas
 src/tools.py             esquemas e implementação das ferramentas
 src/agent.py             loop do LLM, prompt de sistema, sessões
 main.py                  CLI
 scripts/generate_examples.py   roda os cenários de exemplo com o modelo real
+scripts/evaluate_agent.py      avaliação por regras com o modelo real
 scripts/sanitize_customers.py  como os dados de clientes foram anonimizados
 tests/                   testes das ferramentas e do loop do agente
 examples/                conversas com o agente

@@ -24,7 +24,7 @@ customer message
       │ tool results (JSON)          ▼
       └──────────────────── tools (src/tools.py)
                               ├─ catalog / promotions ── in-memory SQLite built from data/*.csv
-                              ├─ payment options ─────── manual §3 / §6.2 rules in code (src/pricing.py)
+                              ├─ payment / shipping ──── manual §3, §5, §6.2 rules in code (src/pricing.py)
                               ├─ order status ────────── requires order id or tracking code + e-mail or phone
                               ├─ store policies ──────── keyword search over the policy manual
                               ├─ store info ──────────── address, contacts, opening hours
@@ -41,6 +41,7 @@ injected on every message, so the agent can reason about opening hours and retur
 | `get_product_details` | "Quanto custa o Takamine GD20?" — fuzzy model match, asks back when ambiguous, suggests alternatives when unavailable |
 | `list_active_promotions` | "Tem promoção?" — only `is_active = 1` promotions exist for the agent |
 | `get_payment_options` | "Dá pra parcelar? E no PIX?" — PIX discount, installment tiers, combined payment |
+| `estimate_shipping` | "Qual o frete para Campo Grande?" — free above R$ 500 locally; other cities get carrier times, never an invented price |
 | `get_order_status` | "Cadê meu pedido?" — identity check, no personal data in the result |
 | `get_store_policy` | returns, warranty, shipping, payment rules |
 | `get_store_info` | address, phone, WhatsApp, e-mail, hours |
@@ -76,17 +77,22 @@ Inside the chat: `/sair` quits, `/limpar` restarts the conversation.
 ## Tests and example conversations
 
 ```bash
-python tests/test_tools.py      # 30 deterministic checks of the tool layer (no LLM, no network)
+python tests/test_tools.py      # 33 deterministic checks of the tool layer (no LLM, no network)
 python tests/test_agent.py      # 7 checks of the agent loop with a simulated OpenAI client
-python -m pytest tests/         # same 37 tests, if pytest is installed
+python -m pytest tests/         # same 40 tests, if pytest is installed
 python scripts/generate_examples.py --translate   # runs 5 scenarios with the real model
+python scripts/evaluate_agent.py --out examples/evaluation.md   # rule-based evaluation with the real model
 ```
 
 The tests cover search (accents, hyphens, promotional prices, truncation, ambiguity, availability
-states), promotions, payment rules, order privacy (identity check, no personal data, identical
+states), promotions, payment and shipping rules, 10 real customer questions against the policy
+manual, order privacy (identity check, no personal data, identical
 failure messages, lock-out, no enumeration), policy retrieval, and the agent loop (tool dispatch,
 round limit, provider errors, date in the prompt, sessions). They do **not** measure the quality of a
-real model's answers; the example conversations do that.
+real model's answers. That is covered by the example conversations and by `scripts/evaluate_agent.py`,
+which runs 11 questions with the real model and checks, with simple rules, whether the expected tool
+was called, whether the reply contains what it must (e.g. the right price) and whether it leaks what it
+must not (personal data, invented discounts, off-topic content).
 
 `examples/` holds the conversations produced by `scripts/generate_examples.py`. Each file states the
 model, the generation time and the store date used (fixed at 2026-03-23, the day after the last order
@@ -115,8 +121,9 @@ hyphen-insensitive, because SQLite's `LOWER()` only handles ASCII.
 
 **Policy retrieval: keyword/stem scoring, no vector store.** The manual is 8 pages split into section-sized
 chunks. An accent-insensitive scorer with prefix stemming (devolver/devolução,
-arrepender/arrependimento) retrieves the right section for the questions we tested, at zero cost and
-with no dependency. If the document set grew, this module could be swapped for embeddings or hybrid
+arrepender/arrependimento), plus a small synonym list for customer words that share no stem with the
+manual ("horas" → horário, "quebrado" → avaria/defeito), puts the right section in the top 3 for the
+10 customer questions in the tests, at zero cost and with no dependency. If the document set grew, this module could be swapped for embeddings or hybrid
 search without touching the rest of the agent.
 
 **Model and provider: configurable, defaulting to Gemini's free tier.** The agent speaks the OpenAI chat
@@ -189,6 +196,10 @@ This project was built with two AI coding assistants, at my request:
   and ambiguity handling, the payment and support-ticket tools, the current date in the prompt, the
   data-quality checks, the extended tests (37, executed in that session), the corrected example
   scenarios and this bilingual README. Claude did not run the agent against a real model.
+- Claude also implemented, at my request, three further changes committed under my name with a
+  `Co-Authored-By: Claude` trailer: the shipping tool (§5), the rule-based evaluation script, and
+  real customer questions as policy-retrieval tests (which exposed two retrieval misses, fixed with
+  extra stop words and a synonym list).
 
 *TODO(author): describe your own part in your own words — what you read and understood, what you ran
 (tests, CLI, example generation, which model), what you decided, what you changed yourself and in
@@ -200,12 +211,13 @@ which commits.*
 data/                    case dataset (CSVs, customers anonymized) + policy manual (PDF and text)
 src/config.py            provider, model and store-date configuration via env vars
 src/database.py          CSV -> in-memory SQLite loader, catalog view, accent-insensitive SQL functions
-src/pricing.py           payment rules from the manual
+src/pricing.py           payment and shipping rules from the manual
 src/policies.py          policy manual chunking and retrieval
 src/tools.py             tool schemas and implementations
 src/agent.py             LLM loop, system prompt, session persistence
 main.py                  CLI
 scripts/generate_examples.py   runs the example scenarios with the real model
+scripts/evaluate_agent.py      rule-based evaluation with the real model
 scripts/sanitize_customers.py  how the customer data was anonymized
 tests/                   tool-layer and agent-loop tests
 examples/                conversations with the agent

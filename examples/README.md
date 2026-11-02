@@ -13,3 +13,4 @@ data da loja usada. As respostas do agente não são editadas.
 | 3 | `03-order-status-with-verification.md` | **Non-trivial:** tracking code → identity check → late order → complaint ticket |
 | 4 | `04-out-of-scope-and-store-info.md` | Accessories (not sold), address and opening hours "tomorrow", unrelated request |
 | 5 | `05-expired-and-active-promotions.md` | **Non-trivial:** expired Black Friday promotion, active promotions, PIX not stacking |
+| — | `evaluation.md` | Output of `scripts/evaluate_agent.py`: 11 rule-checked questions |
