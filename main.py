@@ -1,10 +1,12 @@
-"""Command-line chat with the Empório da Música agent.
+"""Chat no terminal com o agente da Empório da Música.
 
-Usage:
-    python main.py                 # new conversation
-    python main.py --session ana   # named session, persisted under .sessions/
+Uso:
+    python main.py                 # nova conversa
+    python main.py --session ana   # sessão nomeada, salva em .sessions/
+    python main.py --debug         # mostra também o resultado de cada ferramenta
 """
 import argparse
+import json
 from pathlib import Path
 
 from src import config
@@ -14,7 +16,12 @@ from src.agent import Agent
 def main() -> None:
     parser = argparse.ArgumentParser(description="Empório da Música - agente de atendimento")
     parser.add_argument("--session", default=None, help="Nome da sessão para manter o histórico")
+    parser.add_argument("--debug", action="store_true", help="Mostra o resultado das ferramentas")
     args = parser.parse_args()
+
+    if not config.API_KEY:
+        print("Defina LLM_API_KEY no ambiente ou no arquivo .env (veja .env.example).")
+        return
 
     session_path = None
     if args.session:
@@ -38,9 +45,15 @@ def main() -> None:
             agent = Agent()
             print("(conversa reiniciada)")
             continue
-        result = agent.chat(user_input)
+        try:
+            result = agent.chat(user_input)
+        except Exception as exc:  # erro do provedor (cota, rede): avisa e segue a conversa
+            print(f"\n[erro ao falar com o modelo: {type(exc).__name__}: {exc}]")
+            continue
         for call in result["tool_calls"]:
             print(f"  [consulta: {call['tool']}({call['arguments']})]")
+            if args.debug:
+                print(f"    -> {json.dumps(call['result'], ensure_ascii=False)[:300]}")
         print(f"\nAgente: {result['reply']}")
         if session_path:
             agent.save(session_path)
