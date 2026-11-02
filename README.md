@@ -92,7 +92,11 @@ round limit, provider errors, date in the prompt, sessions). They do **not** mea
 real model's answers. That is covered by the example conversations and by `scripts/evaluate_agent.py`,
 which runs 11 questions with the real model and checks, with simple rules, whether the expected tool
 was called, whether the reply contains what it must (e.g. the right price) and whether it leaks what it
-must not (personal data, invented discounts, off-topic content).
+must not (personal data, invented discounts, off-topic content). With `gemini-3.5-flash-lite` it
+passed **11/11** (`examples/evaluation.md`). Reviewing the example conversations by hand found one
+miss the rules did not catch: asked about an expired promotion, the agent said it had ended but did not
+give the current price, which the manual requires (§7.3). The prompt rule was made explicit and that
+scenario was regenerated.
 
 `examples/` holds the conversations produced by `scripts/generate_examples.py`. Each file states the
 model, the generation time and the store date used (fixed at 2026-03-23, the day after the last order
@@ -128,7 +132,11 @@ search without touching the rest of the agent.
 
 **Model and provider: configurable, defaulting to Gemini's free tier.** The agent speaks the OpenAI chat
 completions protocol, so changing provider means changing three environment variables. This keeps the
-project free to run. *TODO(author): state the model actually used to generate the examples and why.*
+project free to run. The examples and the evaluation were produced with **`gemini-3.5-flash-lite`**.
+The first choice was Gemini 3.6 Flash, but its free tier allows only 5 requests per minute and 20 per
+day, which one run of the example scenarios exceeds; 3.5 Flash Lite allows 15 per minute and 500 per
+day. `LLM_MIN_SECONDS_BETWEEN_CALLS` spaces the calls to stay under the per-minute limit. A stronger
+(paid) model would be the production choice; the agent code does not change.
 
 **Interface: CLI** with optional named sessions persisted as JSON in a git-ignored folder.
 

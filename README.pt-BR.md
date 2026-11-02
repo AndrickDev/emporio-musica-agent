@@ -91,7 +91,11 @@ de ferramentas, limite de rodadas, erro do provedor, data no prompt, sessões). 
 qualidade das respostas de um modelo real. Isso fica com as conversas de exemplo e com
 `scripts/evaluate_agent.py`, que roda 11 perguntas no modelo real e confere, com regras simples, se a
 ferramenta esperada foi chamada, se a resposta traz o que deve (ex.: o preço certo) e se não vaza o que
-não pode (dado pessoal, desconto inventado, assunto fora de escopo).
+não pode (dado pessoal, desconto inventado, assunto fora de escopo). Com o `gemini-3.5-flash-lite`
+passou em **11/11** (`examples/evaluation.md`). A leitura manual das conversas de exemplo achou uma
+falha que as regras não pegaram: perguntado sobre uma promoção vencida, o agente disse que ela tinha
+acabado mas não informou o preço atual, como o manual exige (§7.3). A regra do prompt ficou explícita e
+esse cenário foi gerado de novo.
 
 `examples/` guarda as conversas geradas por `scripts/generate_examples.py`. Cada arquivo informa o
 modelo, a hora da geração e a data da loja usada (fixada em 23/03/2026, o dia seguinte ao último pedido
@@ -127,7 +131,11 @@ híbrida sem mexer no resto do agente.
 
 **Modelo e provedor: configurável, com o Gemini gratuito como padrão.** O agente usa o protocolo de chat
 completions da OpenAI, então trocar de provedor é mudar três variáveis de ambiente. Assim o projeto roda
-de graça. *TODO(autor): dizer qual modelo foi usado para gerar os exemplos e por quê.*
+de graça. Os exemplos e a avaliação foram gerados com o **`gemini-3.5-flash-lite`**. A primeira opção
+era o Gemini 3.6 Flash, mas o plano gratuito dele permite só 5 requisições por minuto e 20 por dia, menos
+do que uma rodada dos cenários de exemplo consome; o 3.5 Flash Lite permite 15 por minuto e 500 por dia.
+`LLM_MIN_SECONDS_BETWEEN_CALLS` espaça as chamadas para respeitar o limite por minuto. Em produção, o
+caminho seria um modelo mais forte (pago); o código do agente não muda.
 
 **Interface: CLI**, com sessões nomeadas opcionais salvas em JSON numa pasta fora do git.
 

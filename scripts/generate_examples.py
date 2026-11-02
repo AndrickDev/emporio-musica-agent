@@ -116,7 +116,17 @@ def translate(conversation_md: str) -> str:
                   {"role": "user", "content": conversation_md.split("\n", 4)[-1]}],
         temperature=0,
     )
-    return resp.choices[0].message.content.strip()
+    translated = resp.choices[0].message.content.strip()
+    # As linhas de consulta ao sistema não devem ser traduzidas (são registro do que
+    # o agente fez). Repõe as originais, na mesma ordem, só trocando o rótulo.
+    originals = [line.replace("> _consulta ao sistema:", "> _system query:", 1)
+                 for line in conversation_md.splitlines() if line.startswith("> _consulta ao sistema:")]
+    lines = translated.splitlines()
+    tool_idx = [i for i, line in enumerate(lines) if line.startswith("> _")]
+    if len(tool_idx) == len(originals):
+        for i, original in zip(tool_idx, originals):
+            lines[i] = original
+    return "\n".join(lines)
 
 
 def main() -> None:
