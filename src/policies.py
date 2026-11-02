@@ -19,6 +19,22 @@ _STOPWORDS = {
     "que", "se", "na", "no", "os", "as", "dos", "das", "ao", "aos",
     "por", "pelo", "pela", "ou", "como", "mais", "ser", "sao", "foi",
     "eu", "voce", "meu", "minha", "qual", "quais", "posso", "sobre",
+    # Palavras comuns em perguntas de cliente que aparecem em muitos trechos
+    # ("até 12x", "até 7 dias") e puxavam seções erradas.
+    "ate", "voces", "vcs", "tem", "pra", "faco", "fazer", "isso", "esse", "essa",
+}
+
+# Sinônimos para palavras de cliente que não compartilham radical com o texto
+# do manual. A pergunta é expandida com estes termos antes da pontuação.
+_SYNONYMS = {
+    "horas": ["horario"], "abre": ["horario", "funcionamento"],
+    "abrem": ["horario", "funcionamento"], "aberto": ["horario", "funcionamento"],
+    "aberta": ["horario", "funcionamento"], "fecha": ["horario", "funcionamento"],
+    "fecham": ["horario", "funcionamento"], "funciona": ["horario", "funcionamento"],
+    "quebrado": ["avaria", "danos", "defeito"], "quebrada": ["avaria", "danos", "defeito"],
+    "quebrou": ["avaria", "danos", "defeito"], "estragado": ["avaria", "danos", "defeito"],
+    "amassado": ["avaria", "danos"], "riscado": ["avaria", "danos"],
+    "frete": ["entrega"], "envio": ["entrega"], "mandam": ["entrega"],
 }
 
 
@@ -76,6 +92,7 @@ def search_policies(question: str, top_k: int = 3) -> list:
     da pergunta encontrados no trecho, dividido pela raiz do tamanho do trecho
     (para trechos longos não ganharem só por serem longos)."""
     query_terms = _tokens(question)
+    query_terms += [syn for term in query_terms for syn in _SYNONYMS.get(term, [])]
     scored = []
     for chunk, tokens in zip(_CHUNKS, _CHUNK_TOKENS):
         if not tokens:

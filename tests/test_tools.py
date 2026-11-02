@@ -232,6 +232,44 @@ def test_unknown_tool_and_bad_arguments_do_not_crash():
     assert "error" in json.loads(t.call("get_order_status", {"wrong_arg": 1}))
 
 
+# ------------------------------------------------------------------ frete (§5)
+def test_local_shipping_free_only_above_500():
+    t = new_tools()
+    assert call(t, "estimate_shipping", order_value_brl=500, city="Campo Grande")["shipping_fee"] == 35.0
+    r = call(t, "estimate_shipping", order_value_brl=500.01, city="campo grande - MS")
+    assert r["shipping_fee"] == 0.0 and r["free_shipping"] is True
+
+
+def test_other_cities_never_get_an_invented_price():
+    for city in ("Dourados", None):
+        r = call(new_tools(), "estimate_shipping", order_value_brl=800, city=city)
+        assert r["shipping_fee"] is None and "SEDEX (Correios)" in r["options"]
+
+
+# ------------------------------------------------------------------ perguntas reais de cliente x manual
+POLICY_QUESTIONS = [
+    ("Posso trocar a boquilha do meu saxofone?", "4.4"),
+    ("Quanto tempo de garantia tem um violão?", "8.1"),
+    ("Vocês entregam em Dourados? Qual o prazo?", "5.2"),
+    ("Posso pagar parte no PIX e parte no cartão?", "3.1"),
+    ("Vocês abrem sábado? Até que horas?", "2."),
+    ("O instrumento chegou quebrado, o que eu faço?", "4.2"),
+    ("Meus dados pessoais ficam com vocês?", "9."),
+    ("Vocês vendem cordas?", "1."),
+    ("Como faço para rastrear meu pedido?", "5.3"),
+    ("Tem desconto na Black Friday?", "6.1"),
+]
+
+
+def test_customer_questions_retrieve_the_right_policy_section():
+    """A seção certa precisa estar entre os 3 trechos devolvidos ao modelo."""
+    t = new_tools()
+    for question, section in POLICY_QUESTIONS:
+        r = call(t, "get_store_policy", question=question)
+        heads = [e.split("\n")[0] for e in r.get("excerpts", [])]
+        assert any(h.startswith(section) for h in heads), (question, heads)
+
+
 # ------------------------------------------------------------------ execução como script
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_") and callable(f)]
