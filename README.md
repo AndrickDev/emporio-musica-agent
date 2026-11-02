@@ -24,7 +24,7 @@ customer message
       │ tool results (JSON)        ▼
       └──────────────── tools (src/tools.py)
                           ├─ catalog / promotions ─► in-memory SQLite from data/*.csv
-                          ├─ payment / shipping ──► manual §3, §5, §6.2 rules (src/pricing.py)
+                          ├─ payment / shipping ──► manual §3, §5, §6.2 (src/pricing.py)
                           ├─ order status ────────► order id or tracking + e-mail or phone
                           ├─ store policies ──────► keyword search over the manual
                           ├─ store info ──────────► address, contacts, opening hours
