@@ -184,22 +184,25 @@ customer CSV in this repository is anonymized (`Cliente NNN`, `clienteNNN@exampl
 
 ## Use of AI assistants
 
-This project was built with two AI coding assistants, at my request:
+This project was built with two AI coding assistants, at my request. All commits are under my name;
+every commit produced by an assistant says so with a `Co-Authored-By` trailer (`Instinct` or `Claude`),
+so `git log` shows exactly which tool wrote what.
 
 - **Instinct** generated the first version: project structure, data access, tool layer, agent loop,
-  CLI, example generator, the first example conversations and README, and the first 15 commits
-  (author `AI coding assistant`). That history was rewritten before publication (the customer data is
-  anonymized in every commit), which is why several of those commits share the same author timestamp.
+  CLI, example generator, the first example conversations and README — the first 15 commits
+  (`Co-Authored-By: Instinct`). That part of the history was rewritten before publication (the
+  customer data is anonymized in every commit), which is why several of those commits share the same
+  timestamp.
 - **Claude (Anthropic)** then reviewed that version against the brief and made the changes in the
-  commits authored `Claude (assistente de IA, Anthropic)`: order identity check and removal of personal
-  data from tool results, accent/hyphen-insensitive search, promotional prices in search, truncation
-  and ambiguity handling, the payment and support-ticket tools, the current date in the prompt, the
-  data-quality checks, the extended tests (37, executed in that session), the corrected example
-  scenarios and this bilingual README. Claude did not run the agent against a real model.
-- Claude also implemented, at my request, three further changes committed under my name with a
-  `Co-Authored-By: Claude` trailer: the shipping tool (§5), the rule-based evaluation script, and
-  real customer questions as policy-retrieval tests (which exposed two retrieval misses, fixed with
-  extra stop words and a synonym list).
+  commits marked `Co-Authored-By: Claude`: order identity check and removal of personal data from tool
+  results, accent/hyphen-insensitive search, promotional prices in search, truncation and ambiguity
+  handling, the payment, shipping and support-ticket tools, the current date in the prompt, the
+  data-quality checks, the extended tests, real customer questions as policy-retrieval tests (which
+  exposed two retrieval misses, fixed with extra stop words and a synonym list), the rule-based
+  evaluation script, the corrected example scenarios and this bilingual README. Claude ran the 40
+  offline tests but did not run the agent against a real model.
+- Before publication, the author field of the assistant commits was set to my name (original dates
+  kept) and the `Co-Authored-By` trailers were added, so authorship is consistent and still transparent.
 
 *TODO(author): describe your own part in your own words — what you read and understood, what you ran
 (tests, CLI, example generation, which model), what you decided, what you changed yourself and in

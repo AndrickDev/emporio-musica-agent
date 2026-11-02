@@ -183,23 +183,26 @@ deste repositório está anonimizado (`Cliente NNN`, `clienteNNN@example.com`).
 
 ## Uso de assistentes de IA
 
-Este projeto foi feito com dois assistentes de programação com IA, a meu pedido:
+Este projeto foi feito com dois assistentes de programação com IA, a meu pedido. Todos os commits estão
+no meu nome; cada commit produzido por um assistente diz isso na linha `Co-Authored-By` (`Instinct` ou
+`Claude`), então o `git log` mostra exatamente qual ferramenta escreveu o quê.
 
 - **Instinct** gerou a primeira versão: estrutura do projeto, acesso a dados, ferramentas, loop do
-  agente, CLI, gerador de exemplos, as primeiras conversas de exemplo e o README, além dos 15 primeiros
-  commits (autor `AI coding assistant`). Esse histórico foi reescrito antes da publicação (os dados de
-  clientes aparecem anonimizados em todos os commits); por isso vários desses commits têm o mesmo
-  horário de autoria.
-- **Claude (Anthropic)** depois revisou essa versão contra o enunciado e fez as mudanças dos commits com
-  autor `Claude (assistente de IA, Anthropic)`: verificação de identidade nos pedidos e remoção de dados
-  pessoais dos resultados, busca sem acento e hífen, preço promocional na busca, aviso de lista cortada e
-  de nome ambíguo, as ferramentas de pagamento e de registro de atendimento, a data atual no prompt, as
-  checagens de qualidade dos dados, os testes ampliados (37, executados naquela sessão), os roteiros de
-  exemplo corrigidos e este README bilíngue. O Claude não rodou o agente com um modelo real.
-- O Claude também implementou, a meu pedido, mais três mudanças, commitadas no meu nome com a linha
-  `Co-Authored-By: Claude`: a ferramenta de frete (§5), o script de avaliação por regras e perguntas
-  reais de cliente como testes da busca nas políticas (que revelaram duas falhas, corrigidas com mais
-  stopwords e uma lista de sinônimos).
+  agente, CLI, gerador de exemplos, as primeiras conversas de exemplo e o README — os 15 primeiros
+  commits (`Co-Authored-By: Instinct`). Essa parte do histórico foi reescrita antes da publicação (os
+  dados de clientes aparecem anonimizados em todos os commits); por isso vários desses commits têm o
+  mesmo horário.
+- **Claude (Anthropic)** depois revisou essa versão contra o enunciado e fez as mudanças dos commits
+  marcados `Co-Authored-By: Claude`: verificação de identidade nos pedidos e remoção de dados pessoais
+  dos resultados, busca sem acento e hífen, preço promocional na busca, aviso de lista cortada e de nome
+  ambíguo, as ferramentas de pagamento, frete e registro de atendimento, a data atual no prompt, as
+  checagens de qualidade dos dados, os testes ampliados, perguntas reais de cliente como testes da busca
+  nas políticas (que revelaram duas falhas, corrigidas com mais stopwords e uma lista de sinônimos), o
+  script de avaliação por regras, os roteiros de exemplo corrigidos e este README bilíngue. O Claude rodou
+  os 40 testes offline, mas não rodou o agente com um modelo real.
+- Antes da publicação, o campo de autor dos commits dos assistentes passou para o meu nome (datas
+  originais mantidas) e foram acrescentadas as linhas `Co-Authored-By`, para a autoria ficar consistente
+  e continuar transparente.
 
 *TODO(autor): descreva a sua parte com as suas palavras — o que você leu e entendeu, o que rodou (testes,
 CLI, geração de exemplos, com qual modelo), o que decidiu, o que mudou você mesmo e em quais commits.*
