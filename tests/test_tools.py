@@ -156,8 +156,8 @@ def test_order_result_has_no_personal_data():
 
 def test_wrong_contact_and_missing_order_look_identical():
     t = new_tools()
-    wrong = call(t, "get_order_status", order_id=1, customer_email="outra@pessoa.com")
-    missing = call(t, "get_order_status", order_id=999, customer_email="outra@pessoa.com")
+    wrong = call(t, "get_order_status", order_id=1, customer_email="outra@example.org")
+    missing = call(t, "get_order_status", order_id=999, customer_email="outra@example.org")
     assert wrong["message"] == missing["message"] and not wrong["found"]
 
 
@@ -169,14 +169,14 @@ def test_another_customers_email_does_not_open_order():
 def test_lockout_after_three_failures():
     t = new_tools()
     for _ in range(3):
-        call(t, "get_order_status", order_id=1, customer_email="errado@x.com")
+        call(t, "get_order_status", order_id=1, customer_email="errado@example.org")
     r = call(t, "get_order_status", order_id=1, customer_email="cliente003@example.com")
     assert not r["found"] and "bloqueada" in r["message"]
 
 
 def test_enumeration_is_no_longer_possible():
     t = new_tools()
-    found = [call(t, "get_order_status", order_id=i, customer_email="chute@x.com")["found"] for i in range(1, 21)]
+    found = [call(t, "get_order_status", order_id=i, customer_email="chute@example.org")["found"] for i in range(1, 21)]
     assert not any(found)
 
 
