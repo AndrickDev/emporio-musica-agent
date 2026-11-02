@@ -184,8 +184,11 @@ customer CSV in this repository is anonymized (`Cliente NNN`, `clienteNNN@exampl
 - Holidays are not checked when telling whether the store is open.
 - Shipping prices outside Campo Grande depend on CEP and weight and are not in the data.
 - Conversation history grows within a session; a summarization step would bound token usage.
-- With more time: an automatic evaluation set (question → expected tool and forbidden content), a
-  WhatsApp or web front-end, observability of tool calls, cost and latency.
+- The real-model results (examples and the 11/11 evaluation) come from a single run with a lightweight
+  model; LLM output varies between runs, so they show the agent works, not that it never fails.
+- With more time: a larger evaluation set, run several times and on more than one model, with
+  LLM-graded checks for tone and faithfulness; a WhatsApp or web front-end; observability of tool calls,
+  cost and latency.
 
 ## Use of AI assistants
 

@@ -183,8 +183,12 @@ deste repositório está anonimizado (`Cliente NNN`, `clienteNNN@example.com`).
 - Feriados não são considerados ao dizer se a loja está aberta.
 - Frete fora de Campo Grande depende de CEP e peso e não está nos dados.
 - O histórico cresce durante a sessão; um passo de resumo limitaria o uso de tokens.
-- Com mais tempo: conjunto de avaliação automática (pergunta → ferramenta esperada e conteúdo proibido),
-  interface WhatsApp ou web, observabilidade de chamadas, custo e latência.
+- Os resultados com o modelo real (exemplos e a avaliação 11/11) vêm de uma única rodada com um modelo
+  leve; a saída de um LLM varia entre rodadas, então eles mostram que o agente funciona, não que nunca
+  falha.
+- Com mais tempo: um conjunto de avaliação maior, rodado várias vezes e em mais de um modelo, com
+  verificação de tom e fidelidade feita por LLM; interface WhatsApp ou web; observabilidade de chamadas,
+  custo e latência.
 
 ## Uso de assistentes de IA
 
