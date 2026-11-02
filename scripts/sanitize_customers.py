@@ -1,8 +1,9 @@
-"""OPTIONAL: anonymizes customer names, phones and e-mails in data/customers.csv.
+"""Anonimiza nomes, telefones e e-mails em data/customers.csv.
 
-Not applied by default. The case states the store is fictional and provides
-these CSVs for the agent, so publishing them as-is is acceptable; this script
-exists in case the author prefers a sanitized public repo anyway.
+JÁ FOI APLICADO neste repositório: o customers.csv versionado tem nomes
+"Cliente NNN", telefones (67) 90000-NNNN e e-mails clienteNNN@example.com.
+Os dados originais do case (também fictícios) não estão no histórico git.
+Rodar de novo não muda nada. O script fica como registro de como foi feito.
 
 Usage:
     python scripts/sanitize_customers.py   # rewrites data/customers.csv
