@@ -10,9 +10,6 @@ of voice (informal but professional). It checks catalog, order, promotion and pa
 stating any fact, and applies the store's policy manual to questions about returns, exchanges,
 shipping, payment, warranty and opening hours.
 
-> **TODO(author) — remove before submitting:** generate the example conversations, fill in the
-> "Use of AI assistants" section with your own workflow, and confirm the language interpretation.
-
 ## How it works
 
 ```
@@ -212,9 +209,18 @@ so `git log` shows exactly which tool wrote what.
 - Before publication, the author field of the assistant commits was set to my name (original dates
   kept) and the `Co-Authored-By` trailers were added, so authorship is consistent and still transparent.
 
-*TODO(author): describe your own part in your own words — what you read and understood, what you ran
-(tests, CLI, example generation, which model), what you decided, what you changed yourself and in
-which commits.*
+**My part.** I set the ground rules for both assistants (no invented store data, protected and
+anonymized customer data, executed vs. proposed tests kept separate, honest AI disclosure, nothing
+published without my approval). I reviewed Claude's assessment of the first version against the brief
+and decided which findings to fix: order privacy, accent-insensitive search and promotional prices. I
+also chose the extra changes: the shipping tool, the automatic evaluation and real customer questions as
+tests. I decided on a bilingual README with the agent speaking Portuguese, and on keeping authorship
+transparent with AI co-author trailers. I ran everything locally (API key, `.env`, tests, CLI, example
+generation and evaluation), switched to Gemini 3.5 Flash Lite when the free-tier quota of 3.6 Flash ran
+out, reviewed the examples with Claude (which caught the expired-promotion miss in scenario 5) and
+committed the examples myself. The architecture itself (function calling, in-memory SQLite, keyword
+policy retrieval) was proposed by the assistants; I am studying the code in depth as part of preparing
+to defend it.
 
 ## Project structure
 

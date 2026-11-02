@@ -10,9 +10,6 @@ profissional"). Ele consulta catálogo, pedidos, promoções e formas de pagamen
 qualquer fato, e aplica o manual de políticas a dúvidas sobre troca, devolução, frete, pagamento,
 garantia e horário.
 
-> **TODO(autor) — remover antes de entregar:** gerar as conversas de exemplo, preencher a seção "Uso
-> de assistentes de IA" com o seu workflow e confirmar a interpretação do idioma.
-
 ## Como funciona
 
 ```
@@ -212,8 +209,18 @@ no meu nome; cada commit produzido por um assistente diz isso na linha `Co-Autho
   originais mantidas) e foram acrescentadas as linhas `Co-Authored-By`, para a autoria ficar consistente
   e continuar transparente.
 
-*TODO(autor): descreva a sua parte com as suas palavras — o que você leu e entendeu, o que rodou (testes,
-CLI, geração de exemplos, com qual modelo), o que decidiu, o que mudou você mesmo e em quais commits.*
+**Minha parte.** Defini as regras para os dois assistentes (não inventar dados da loja, proteger e
+anonimizar os dados de clientes, separar testes executados de testes apenas propostos, declarar o uso de
+IA com honestidade, não publicar nada sem a minha aprovação). Revisei a avaliação que o Claude fez da
+primeira versão contra o enunciado e decidi quais problemas corrigir: privacidade dos pedidos, busca sem
+acento e preço promocional. Também escolhi as mudanças extras: a ferramenta de frete, a avaliação
+automática e perguntas reais de cliente como testes. Decidi pelo README bilíngue com o agente falando
+português e por manter a autoria transparente com as linhas de coautoria das IAs. Rodei tudo localmente
+(chave da API, `.env`, testes, CLI, geração dos exemplos e avaliação), troquei para o Gemini 3.5 Flash
+Lite quando a cota gratuita do 3.6 Flash acabou, revisei os exemplos com o Claude (o que revelou a falha
+da promoção vencida no cenário 5) e fiz eu mesmo o commit dos exemplos. A arquitetura em si (function
+calling, SQLite em memória, busca por palavras-chave nas políticas) foi proposta pelos assistentes; estou
+estudando o código a fundo como parte da preparação para defendê-lo.
 
 ## Estrutura do projeto
 
