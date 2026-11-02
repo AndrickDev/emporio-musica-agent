@@ -26,7 +26,7 @@ from pathlib import Path
 from . import config
 from .database import compact, load_db, norm
 from .policies import search_policies
-from .pricing import payment_options
+from .pricing import payment_options, shipping_estimate
 
 _DB = load_db()
 
@@ -129,6 +129,24 @@ TOOL_SCHEMAS = [
                     "product_id": {"type": "integer"},
                     "amount_brl": {"type": "number", "description": "Valor em R$ (se não for um produto só)."},
                 },
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "estimate_shipping",
+            "description": (
+                "Frete e prazo de entrega para um valor de compra e uma cidade. Só Campo Grande tem "
+                "valor fixo; para outras cidades devolve prazos das transportadoras, sem preço."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "order_value_brl": {"type": "number", "description": "Valor da compra em R$."},
+                    "city": {"type": "string", "description": "Cidade de entrega."},
+                },
+                "required": ["order_value_brl"],
             },
         },
     },
@@ -268,6 +286,7 @@ class StoreTools:
             "get_product_details": self.get_product_details,
             "list_active_promotions": self.list_active_promotions,
             "get_payment_options": self.get_payment_options,
+            "estimate_shipping": self.estimate_shipping,
             "get_order_status": self.get_order_status,
             "get_store_policy": self.get_store_policy,
             "get_store_info": self.get_store_info,
@@ -399,6 +418,9 @@ class StoreTools:
                               "estiver em promoção, o desconto do PIX não se aplica a ele.")
             return result
         return {"error": "Informe product_id ou amount_brl."}
+
+    def estimate_shipping(self, order_value_brl, city=None):
+        return shipping_estimate(float(order_value_brl), city)
 
     # ---- pedidos
     def get_order_status(self, order_id=None, tracking_code=None, customer_email=None, customer_phone=None):

@@ -58,3 +58,44 @@ def payment_options(list_price: float, promo_price: float | None = None) -> dict
         },
         "combined_payment_allowed": price > COMBINED_PAYMENT_ABOVE,
     }
+
+
+# ---------------------------------------------------------------- frete (§5)
+LOCAL_FREE_SHIPPING_ABOVE = 500.00
+LOCAL_SHIPPING_FEE = 35.00
+
+
+def shipping_estimate(order_value: float, city: str | None) -> dict:
+    """Regras de frete do manual.
+
+    §5.1: na região metropolitana de Campo Grande, frete grátis ACIMA de R$ 500,00;
+    abaixo disso, taxa fixa de R$ 35,00; prazo de 1 a 3 dias úteis, por motoboy.
+    O manual não lista as cidades da região metropolitana, então só "Campo Grande"
+    recebe a regra local; outras cidades caem na §5.2, cujo valor depende de CEP,
+    peso e dimensões e NÃO está nos dados (o agente não deve estimar).
+    """
+    from .database import norm
+
+    city_norm = norm(city or "").replace("-", " ").replace("/", " ").split()
+    if city_norm[:2] == ["campo", "grande"]:
+        free = order_value > LOCAL_FREE_SHIPPING_ABOVE
+        return {
+            "region": "Campo Grande (entrega local)",
+            "shipping_fee": 0.0 if free else LOCAL_SHIPPING_FEE,
+            "free_shipping": free,
+            "delivery_time": "1 a 3 dias úteis, por motoboy próprio; o cliente recebe uma ligação antes",
+            "source": "manual §5.1",
+        }
+    return {
+        "region": f"Fora de Campo Grande ({city or 'cidade não informada'})",
+        "shipping_fee": None,
+        "options": {
+            "PAC (Correios)": "5 a 12 dias úteis",
+            "SEDEX (Correios)": "2 a 5 dias úteis",
+            "Jadlog (.package)": "3 a 8 dias úteis",
+        },
+        "note": ("O valor depende do CEP, peso e dimensões e não está disponível para o assistente; não "
+                 "estime. Instrumentos grandes podem exigir cotação especial. Envios têm rastreio e seguro. "
+                 "Ofereça registrar o pedido de cotação para a equipe."),
+        "source": "manual §5.2",
+    }
