@@ -26,7 +26,7 @@ from src import config  # noqa: E402
 
 config.STORE_TODAY = os.getenv("STORE_TODAY") or "2026-03-23"
 
-from src.agent import Agent  # noqa: E402
+from src.agent import Agent, describe_api_error  # noqa: E402
 
 # (pergunta, ferramentas aceitas [ao menos uma deve ser chamada; vazio = nenhuma exigida],
 #  regex que DEVE aparecer na resposta, regex que NÃO pode aparecer)
@@ -80,7 +80,10 @@ def main() -> None:
     passed = 0
     details = []
     for i, case in enumerate(CASES, start=1):
-        ok, called, checks, reply = run_case(*case)
+        try:
+            ok, called, checks, reply = run_case(*case)
+        except Exception as exc:  # cota/rede: interrompe sem relatório pela metade
+            sys.exit(f"Parou no caso {i}: {describe_api_error(exc)}")
         passed += ok
         check_txt = ", ".join(f"{name} {'✔' if good else '✘'}" for name, good in checks)
         lines.append(f"| {i} | {case[0]} | {', '.join(called) or '—'} | {check_txt} | {'PASS' if ok else 'FAIL'} |")

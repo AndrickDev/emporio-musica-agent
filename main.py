@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 
 from src import config
-from src.agent import Agent
+from src.agent import Agent, describe_api_error
 
 
 def main() -> None:
@@ -48,7 +48,7 @@ def main() -> None:
         try:
             result = agent.chat(user_input)
         except Exception as exc:  # erro do provedor (cota, rede): avisa e segue a conversa
-            print(f"\n[erro ao falar com o modelo: {type(exc).__name__}: {exc}]")
+            print(f"\n[erro ao falar com o modelo: {describe_api_error(exc)}]")
             continue
         for call in result["tool_calls"]:
             print(f"  [consulta: {call['tool']}({call['arguments']})]")

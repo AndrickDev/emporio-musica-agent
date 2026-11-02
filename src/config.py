@@ -38,6 +38,9 @@ TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.4"))
 REASONING_EFFORT = os.getenv("LLM_REASONING_EFFORT", "")
 MAX_TOOL_ROUNDS = int(os.getenv("AGENT_MAX_TOOL_ROUNDS", "8"))
 MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "4"))
+# Pausa mínima entre chamadas ao modelo, para respeitar limites por minuto de
+# planos gratuitos (ex.: 10 requisições/min -> 6 segundos). 0 = sem pausa.
+MIN_SECONDS_BETWEEN_CALLS = float(os.getenv("LLM_MIN_SECONDS_BETWEEN_CALLS", "0"))
 SESSIONS_DIR = os.getenv("AGENT_SESSIONS_DIR", ".sessions")
 
 # Data/hora da loja (Campo Grande/MS). STORE_TODAY=AAAA-MM-DD fixa a data para

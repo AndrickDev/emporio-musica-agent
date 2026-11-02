@@ -23,6 +23,34 @@ from openai import APIError, OpenAI
 from . import config
 from .tools import TOOL_SCHEMAS, StoreTools
 
+_last_call_at = 0.0  # horário da última chamada ao modelo (para o espaçamento)
+
+
+def describe_api_error(exc: Exception) -> str:
+    """Mensagem legível de um erro do provedor, incluindo o motivo que ele enviou
+    (ex.: se a cota estourada é por minuto ou por dia)."""
+    status = getattr(exc, "status_code", None)
+    body = ""
+    response = getattr(exc, "response", None)
+    if response is not None:
+        try:
+            body = response.text
+        except Exception:
+            body = ""
+    detail = (body or str(exc)).strip().replace("\n", " ")
+    return f"{type(exc).__name__} (HTTP {status}): {detail[:600]}"
+
+
+def _retry_after_seconds(exc: Exception, attempt: int) -> float:
+    """Usa o tempo sugerido pela API (cabeçalho Retry-After) ou espera crescente."""
+    response = getattr(exc, "response", None)
+    header = response.headers.get("retry-after") if response is not None else None
+    try:
+        return min(float(header), 90.0)
+    except (TypeError, ValueError):
+        return min(15 * 2 ** attempt, 60)
+
+
 FALLBACK_REPLY = "Desculpa, tive uma dificuldade técnica aqui. Pode repetir ou reformular?"
 
 SYSTEM_PROMPT = """Você é o assistente virtual da Empório da Música, loja de instrumentos musicais de Campo Grande/MS, atendendo clientes por mensagem de texto.
@@ -73,11 +101,16 @@ class Agent:
         """Chama o modelo, com nova tentativa curta para erros temporários.
 
         Planos gratuitos limitam requisições (429) ou ficam sem capacidade (503);
-        os dois podem ser repetidos. O tempo total de espera é limitado para a
-        conversa não ficar travada.
+        os dois podem ser repetidos. Respeita LLM_MIN_SECONDS_BETWEEN_CALLS entre
+        chamadas e o Retry-After da API. O tempo total de espera é limitado.
         """
+        global _last_call_at
         last_error = None
         for attempt in range(config.MAX_RETRIES):
+            wait = config.MIN_SECONDS_BETWEEN_CALLS - (time.monotonic() - _last_call_at)
+            if wait > 0:
+                time.sleep(wait)
+            _last_call_at = time.monotonic()
             try:
                 kwargs = {}
                 if config.REASONING_EFFORT:
@@ -95,7 +128,7 @@ class Agent:
                 status = getattr(exc, "status_code", None)
                 if status not in (429, 500, 502, 503, 504) or attempt == config.MAX_RETRIES - 1:
                     raise
-                time.sleep(min(5 * 2 ** attempt, 30))
+                time.sleep(_retry_after_seconds(exc, attempt))
         raise last_error
 
     def chat(self, user_input: str) -> dict:

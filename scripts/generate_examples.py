@@ -30,7 +30,7 @@ from src import config  # noqa: E402
 
 config.STORE_TODAY = os.getenv("STORE_TODAY") or "2026-03-23"
 
-from src.agent import Agent  # noqa: E402
+from src.agent import Agent, describe_api_error  # noqa: E402
 
 SCENARIOS = [
     (
@@ -123,6 +123,8 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("only", nargs="*", type=int, help="números dos cenários (1 a 5)")
     parser.add_argument("--translate", action="store_true", help="acrescenta tradução para o inglês")
+    parser.add_argument("--skip-existing", action="store_true",
+                        help="pula cenários cujo arquivo já existe (para retomar depois de estourar a cota)")
     args = parser.parse_args()
     if not config.API_KEY:
         sys.exit("Defina LLM_API_KEY no ambiente ou no .env (veja .env.example).")
@@ -132,11 +134,18 @@ def main() -> None:
     for number, (filename, title, messages) in enumerate(SCENARIOS, start=1):
         if args.only and number not in args.only:
             continue
-        text = run_scenario(title, messages)
-        if args.translate:
-            text += ("\n---\n\n## English translation\n\n_Machine translation of the conversation "
-                     f"above, produced by `{config.MODEL}` for reviewers; the original is the "
-                     "Portuguese text._\n\n" + translate(text) + "\n")
+        if args.skip_existing and (out_dir / filename).exists():
+            print(f"já existe, pulando {filename}")
+            continue
+        try:
+            text = run_scenario(title, messages)
+            if args.translate:
+                text += ("\n---\n\n## English translation\n\n_Machine translation of the conversation "
+                         f"above, produced by `{config.MODEL}` for reviewers; the original is the "
+                         "Portuguese text._\n\n" + translate(text) + "\n")
+        except Exception as exc:  # cota/rede: para sem gravar arquivo pela metade
+            sys.exit(f"Parou no cenário {number} ({filename}): {describe_api_error(exc)}\n"
+                     "Os cenários anteriores foram salvos. Rode de novo com --skip-existing para continuar.")
         (out_dir / filename).write_text(text, encoding="utf-8")
         print(f"gerado {filename}")
 

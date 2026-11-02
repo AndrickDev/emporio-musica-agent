@@ -78,8 +78,8 @@ Inside the chat: `/sair` quits, `/limpar` restarts the conversation.
 
 ```bash
 python tests/test_tools.py      # 33 deterministic checks of the tool layer (no LLM, no network)
-python tests/test_agent.py      # 7 checks of the agent loop with a simulated OpenAI client
-python -m pytest tests/         # same 40 tests, if pytest is installed
+python tests/test_agent.py      # 9 checks of the agent loop with a simulated OpenAI client
+python -m pytest tests/         # same 42 tests, if pytest is installed
 python scripts/generate_examples.py --translate   # runs 5 scenarios with the real model
 python scripts/evaluate_agent.py --out examples/evaluation.md   # rule-based evaluation with the real model
 ```
@@ -199,7 +199,7 @@ so `git log` shows exactly which tool wrote what.
   handling, the payment, shipping and support-ticket tools, the current date in the prompt, the
   data-quality checks, the extended tests, real customer questions as policy-retrieval tests (which
   exposed two retrieval misses, fixed with extra stop words and a synonym list), the rule-based
-  evaluation script, the corrected example scenarios and this bilingual README. Claude ran the 40
+  evaluation script, the corrected example scenarios and this bilingual README. Claude ran the 42
   offline tests but did not run the agent against a real model.
 - Before publication, the author field of the assistant commits was set to my name (original dates
   kept) and the `Co-Authored-By` trailers were added, so authorship is consistent and still transparent.

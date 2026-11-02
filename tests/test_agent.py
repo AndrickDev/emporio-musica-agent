@@ -132,6 +132,30 @@ def test_session_save_and_load():
     assert [m["content"] for m in b.messages[1:]] == ["oi", "Olá!"]
 
 
+def test_min_seconds_between_calls_is_respected():
+    import time
+    old = config.MIN_SECONDS_BETWEEN_CALLS
+    config.MIN_SECONDS_BETWEEN_CALLS = 0.3
+    try:
+        a = make_agent([completion(tool_calls=[("get_store_info", {})]), completion("ok")])
+        start = time.monotonic()
+        a.chat("oi")
+        assert time.monotonic() - start >= 0.3  # duas chamadas, uma pausa entre elas
+    finally:
+        config.MIN_SECONDS_BETWEEN_CALLS = old
+
+
+def test_api_error_description_shows_provider_reason():
+    response = SimpleNamespace(text='{"error": {"message": "Quota exceeded: requests per day"}}',
+                               headers={"retry-after": "12"})
+    exc = SimpleNamespace(status_code=429, response=response)
+    msg = agent_module.describe_api_error(exc)
+    assert "429" in msg and "requests per day" in msg
+    assert agent_module._retry_after_seconds(exc, 0) == 12.0
+    no_header = SimpleNamespace(status_code=429, response=SimpleNamespace(text="", headers={}))
+    assert agent_module._retry_after_seconds(no_header, 1) == 30
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_") and callable(f)]
     for name, fn in tests:

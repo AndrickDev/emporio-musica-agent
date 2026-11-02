@@ -78,8 +78,8 @@ No chat: `/sair` encerra, `/limpar` reinicia a conversa.
 
 ```bash
 python tests/test_tools.py      # 33 verificações da camada de ferramentas (sem LLM, sem rede)
-python tests/test_agent.py      # 7 verificações do loop do agente com cliente OpenAI simulado
-python -m pytest tests/         # os mesmos 40 testes, se tiver pytest
+python tests/test_agent.py      # 9 verificações do loop do agente com cliente OpenAI simulado
+python -m pytest tests/         # os mesmos 42 testes, se tiver pytest
 python scripts/generate_examples.py --translate   # roda 5 cenários com o modelo real
 python scripts/evaluate_agent.py --out examples/evaluation.md   # avaliação por regras com o modelo real
 ```
@@ -199,7 +199,7 @@ no meu nome; cada commit produzido por um assistente diz isso na linha `Co-Autho
   checagens de qualidade dos dados, os testes ampliados, perguntas reais de cliente como testes da busca
   nas políticas (que revelaram duas falhas, corrigidas com mais stopwords e uma lista de sinônimos), o
   script de avaliação por regras, os roteiros de exemplo corrigidos e este README bilíngue. O Claude rodou
-  os 40 testes offline, mas não rodou o agente com um modelo real.
+  os 42 testes offline, mas não rodou o agente com um modelo real.
 - Antes da publicação, o campo de autor dos commits dos assistentes passou para o meu nome (datas
   originais mantidas) e foram acrescentadas as linhas `Co-Authored-By`, para a autoria ficar consistente
   e continuar transparente.
