@@ -125,8 +125,9 @@ project free to run. *TODO(author): state the model actually used to generate th
 
 **Interface: CLI** with optional named sessions persisted as JSON in a git-ignored folder.
 
-**Language.** Submission materials (README, code, commit messages) are in English, as requested by the
-hiring process; this README also has a Portuguese version. The agent converses in Brazilian Portuguese
+**Language.** This README is in English, as requested by the hiring process, with a Portuguese version
+alongside. Code identifiers are in English; code comments and the later commit messages are in
+Portuguese, the author's working language. The agent converses in Brazilian Portuguese
 because it serves the store's customers and the case's own example questions are in Portuguese; each
 example conversation carries an English translation. Answering customers in English would be a
 one-line change in the system prompt.
@@ -142,7 +143,7 @@ customer CSV in this repository is anonymized (`Cliente NNN`, `clienteNNN@exampl
 
 | Topic | Ambiguity | Decision |
 |---|---|---|
-| Language | The brief is in Portuguese; the hiring e-mail asks for English | Submission materials in English; agent in Portuguese; examples translated |
+| Language | The brief is in Portuguese; the hiring e-mail asks for English | README in English (plus a Portuguese version); agent in Portuguese; examples translated |
 | Installments (§3 / §3.1) | "Up to 3x: no minimum (except below R$ 50.00)" | 2–3x need installments ≥ R$ 50; 4–6x ≥ R$ 80; 7–12x ≥ R$ 100 |
 | Thresholds | "acima de R$ 2.000" | Strictly greater than |
 | Contacts | §1.2 lists (67) 3341-4444 as phone/WhatsApp; §7 lists (67) 3321-4500 as the WhatsApp channel | Phone from §1.2, WhatsApp from §7 |

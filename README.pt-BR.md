@@ -125,8 +125,9 @@ de graça. *TODO(autor): dizer qual modelo foi usado para gerar os exemplos e po
 
 **Interface: CLI**, com sessões nomeadas opcionais salvas em JSON numa pasta fora do git.
 
-**Idioma.** Os materiais de submissão (README, código, mensagens de commit) estão em inglês, como pede o
-processo seletivo; este README tem também a versão em português. O agente conversa em português porque
+**Idioma.** O README principal está em inglês, como pede o processo seletivo, com esta versão em
+português ao lado. Os nomes no código estão em inglês; os comentários e as mensagens de commit mais
+recentes estão em português, idioma de trabalho do autor. O agente conversa em português porque
 atende os clientes da loja e porque as perguntas de exemplo do próprio case estão em português; cada
 conversa de exemplo traz tradução para o inglês. Responder em inglês seria uma mudança de uma linha no
 prompt.
@@ -142,7 +143,7 @@ deste repositório está anonimizado (`Cliente NNN`, `clienteNNN@example.com`).
 
 | Tema | Ambiguidade | Decisão |
 |---|---|---|
-| Idioma | O enunciado está em português; o e-mail do processo pede inglês | Materiais de submissão em inglês; agente em português; exemplos traduzidos |
+| Idioma | O enunciado está em português; o e-mail do processo pede inglês | README em inglês (com versão em português); agente em português; exemplos traduzidos |
 | Parcelamento (§3 / §3.1) | "até 3x: sem valor mínimo (exceto abaixo de R$ 50,00)" | 2–3x exigem parcela ≥ R$ 50; 4–6x ≥ R$ 80; 7–12x ≥ R$ 100 |
 | Limites | "acima de R$ 2.000" | Estritamente maior |
 | Contatos | §1.2 traz (67) 3341-4444 como telefone/WhatsApp; §7 traz (67) 3321-4500 como canal de WhatsApp | Telefone da §1.2, WhatsApp da §7 |
