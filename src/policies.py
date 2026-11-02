@@ -1,10 +1,12 @@
-"""Keyword retrieval over the store policy manual.
+"""Busca por palavras-chave no manual de políticas da loja.
 
-The manual is a single static document (8 pages), so a full vector store
-would be over-engineering: the text is pre-extracted to
-data/politicas_da_loja.txt, split into section-sized chunks, and ranked with
-a small accent-insensitive term-frequency scorer built on the standard
-library only. See README for the trade-off discussion.
+O manual é um documento único e estático (8 páginas); um banco vetorial seria
+exagero. O texto foi extraído antes para data/politicas_da_loja.txt (mesmas
+palavras do PDF; só muda a quebra de linha das tabelas), dividido em trechos
+do tamanho de uma seção e ranqueado por um pontuador simples, sem acento e só
+com a biblioteca padrão. Ver o README para a discussão de prós e contras.
+
+Se o PDF mudar, o .txt precisa ser extraído de novo.
 """
 import re
 import unicodedata
@@ -37,7 +39,9 @@ def _build_chunks() -> list:
         if ln.strip() and not ln.strip().startswith(("Página ", "Empório da Música Manual"))
     ]
     text = "\n".join(lines)
-    # Split at numbered section headings (e.g. "4. Política...", "4.1 Direito...")
+    # Divide nos títulos numerados ("4. Política...", "4.1 Direito...").
+    # Obs.: a lista "1. Saudação ... 5. Fechamento" da §7.2 também é dividida;
+    # não atrapalha a busca, só gera trechos menores.
     parts = re.split(r"\n(?=\d+(?:\.\d+)?\.?\s+[A-ZÀ-Ú])", text)
     chunks = []
     for part in parts:
@@ -59,8 +63,8 @@ _CHUNK_TOKENS = [_tokens(c) for c in _CHUNKS]
 
 
 def _matches(query_term: str, token: str) -> bool:
-    """Rough stem match: Portuguese inflections share a prefix (devolver /
-    devolucao, arrependender / arrependimento, compra / compras)."""
+    """Radical aproximado: flexões em português compartilham o prefixo
+    (devolver / devolucao, arrepender / arrependimento, compra / compras)."""
     if query_term == token:
         return True
     n = min(5, len(query_term), len(token))
@@ -68,7 +72,9 @@ def _matches(query_term: str, token: str) -> bool:
 
 
 def search_policies(question: str, top_k: int = 3) -> list:
-    """Return the top_k most relevant policy excerpts for a question."""
+    """Devolve os top_k trechos mais relevantes. A pontuação é o número de termos
+    da pergunta encontrados no trecho, dividido pela raiz do tamanho do trecho
+    (para trechos longos não ganharem só por serem longos)."""
     query_terms = _tokens(question)
     scored = []
     for chunk, tokens in zip(_CHUNKS, _CHUNK_TOKENS):
